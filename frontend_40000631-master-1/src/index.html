@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebWordCount</title>
+
+<script type="text/javascript">
+
+let result = 0;
+let paragraph = '';
+let word = '';
+
+// proxylist is used for handling service failure, alternate proxies can be used
+const proxyList = ["http://newproxy.40000631.qpc.hal.davecutting.uk", "http://newproxy2.40000631.qpc.hal.davecutting.uk", "http://newproxy3.40000631.qpc.hal.davecutting.uk"];
+
+// this function is used to display result of the check service
+function Display()
+{
+    if (result == 1)
+        result = 'Keyword exists!';
+    else if (result == 0)
+        result = 'Keyword does not exist!';
+    document.getElementById('display-2').value = result;
+
+}
+
+// this function is used to display the result of the wordcount service
+function DisplayWordCount()
+{
+    $text = 'Total word count = '
+    document.getElementById('display-1').value = $text += result;
+
+}
+
+// this function is used to display the result of the keywordcount service
+function DisplayKeywordCount()
+{
+    $text = 'Total keyword appearances = '
+    document.getElementById('display-3').value = $text += result;
+
+}
+
+// this function is used to clear all fields on the webpage
+function Clear()
+{
+    document.getElementById('paragraph').value = '';
+    document.getElementById('word').value = '';
+    document.getElementById('display-1').value = '';
+    document.getElementById('display-2').value = '';
+    document.getElementById('display-3').value = '';
+
+}
+
+// this function checks if the keyword entered matches a word in the paragraph
+function Check()
+{
+    paragraph = document.getElementById('paragraph').value
+    word = document.getElementById('word').value
+
+    var count = 0;
+    var proxyURL = proxyList[count];
+
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var j = JSON.parse(this.response);
+            if (j.error != "") {
+              // error messages are contained within the backend and returned here
+              result = j.error;
+            } else {
+              // results are also stored in the backend
+              result = j.answer;
+            }
+            Display();
+
+          // if proxy1 fails a call will be made to next proxy, then the next if needed
+        } else if (this.readyState == 4 && this.status != 200 && count <= proxyList.length) {
+            count+=1;
+            proxyURL = proxyList[count];
+            xhttp.open("GET",proxyURL+"?service=check&paragraph="+paragraph+"&word="+word);
+            xhttp.send();
+        }
+      };
+
+    xhttp.open("GET",proxyURL+"?service=check&paragraph="+paragraph+"&word="+word);
+    xhttp.send();
+
+    return;
+
+}
+
+// this function counts total words in the paragraph field
+function WordCount()
+{
+    paragraph = document.getElementById('paragraph').value
+
+    var count = 0;
+    var proxyURL = proxyList[count];
+
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        var j = JSON.parse(this.response);
+          if (j.error != '') {
+                  document.getElementById('display-1').value = j.error;
+                } else {
+                  result = j.answer;
+                  DisplayWordCount();
+                }
+          } else if (this.readyState == 4 && this.status != 200 && count <= proxyList.length) {
+                count+=1;
+                proxyURL = proxyList[count];
+                xhttp.open("GET",proxyURL+"?service=wordcount&paragraph="+paragraph);
+                xhttp.send();
+          }
+      };
+
+    xhttp.open("GET",proxyURL+"?service=wordcount&paragraph="+paragraph);
+    xhttp.send();
+
+    return;
+
+}
+
+// this function checks whether a keyword is present in the paragraph field
+function KeywordAppearance()
+{
+    paragraph = document.getElementById('paragraph').value
+    word = document.getElementById('word').value
+
+    var count = 0;
+    var proxyURL = proxyList[count];
+
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var j = JSON.parse(this.response);
+            if (j.error != '') {
+                document.getElementById('display-3').value = j.error;
+              } else {
+                result = j.answer;
+                DisplayKeywordCount();
+              }
+        } else if (this.readyState == 4 && this.status != 200 && count <= proxyList.length) {
+            count+=1;
+            proxyURL = proxyList[count];
+            xhttp.open("GET",proxyURL+"?service=keywordcount&paragraph="+paragraph+"&word="+word);
+            xhttp.send();
+        }
+    };
+
+    xhttp.open("GET",proxyURL+"?service=keywordcount&paragraph="+paragraph+"&word="+word);
+    xhttp.send();
+
+    return;
+
+}
+
+</script>
+
+<style type="text/css">
+body  {
+    font-size: 150%;
+    font-family: monospace;
+}
+
+#logo
+{
+    font-family: Calibri, sans-serif;
+    font-weight: lighter;
+    color: #505050;
+    margin: 0.5em;
+}
+
+#wordcount
+{
+    text-align: center;
+    margin-top: 1em;
+}
+
+#paragraph {
+    font-size: 90%;
+    padding: 0.2em;
+    margin: 0.2em;
+    font-family: monospace;
+    letter-spacing: 0.1em;
+    border: 1px solid black;
+
+}
+
+#word {
+    font-size: 90%;
+    border: 1px solid black;
+    padding: 0.2em;
+    margin: 0.2em;
+    font-family: monospace;
+    letter-spacing: 0.1em;
+    width: 400px;
+
+}
+
+.display {
+    font-size: 90%;
+    color: white;
+    background-color: black;
+    padding: 0.2em;
+    margin: 0.2em;
+    font-family: monospace;
+    letter-spacing: 0.1em;
+    width: 400px;
+
+}
+
+.wwcbutton {
+    background-color: green;
+    color: white;
+    padding: 0px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 4px 2px;
+    cursor: pointer;
+    height: 40px;
+    width: 400px;
+}
+
+.wwcbutton-inactive {
+    background-color: gray;
+    color: white;
+    padding: 0px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 4px 2px;
+    cursor: pointer;
+    height: 40px;
+    width: 400px;
+}
+
+.wwcbutton-clear {
+    background-color: red;
+    color: white;
+    padding: 0px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 4px 2px;
+    cursor: pointer;
+    height: 40px;
+    width: 400px;
+}
+
+</style>
+
+</head>
+<body>
+<div id="wordcount">
+    <div id="logo">
+        Web Word Count App
+    </div>
+    <div>
+        <textarea id="paragraph" rows="5" cols="35" placeholder="Enter the paragraph here..." value="">Enter the paragraph here...
+        </textarea>
+    </div>
+    <div>
+        <input type="text" id="word" placeholder="Enter the keyword here..." value="">
+    </div>
+    <div>
+        <input type="text" class="display" id="display-1" readonly=1 placeholder="Total word count = 0 " value=""><br>
+        <input type="text" class="display" id="display-2" readonly=1 placeholder="Keyword does not exist!" value=""><br>
+        <input type="text" class="display" id="display-3" readonly=1 placeholder="Total keyword appearances = 0" value="">
+    </div>
+    <div>
+        <button class="wwcbutton" onclick="WordCount();">Total words?</button>
+    </div>
+    <div>
+        <button class="wwcbutton" onclick="Check();">Check keyword appearance</button>
+    </div>
+    <div>
+        <button class="wwcbutton" onclick="KeywordAppearance();">Total keyword appearances?</button>
+    </div>
+    <div>
+        <button class="wwcbutton-clear" onclick="Clear();">Clear</button>
+    </div>
+
+</div>
+</body>
+
+<script type="text/javascript">
+</script>
+
+</html>
