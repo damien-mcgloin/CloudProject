@@ -1,0 +1,2 @@
+MAILTO=rufus947@gmail.com
+*/5 * * * * curl 'http:periodictest.40000631.qpc.hal.davecutting.uk'
